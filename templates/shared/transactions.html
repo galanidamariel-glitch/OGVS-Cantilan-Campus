@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Transaction History{% endblock %}
+{% block page_title %}Transaction History{% endblock %}
+{% block page_subtitle %}{{ scope }} · updates automatically{% endblock %}
+{% block topbar_actions %}
+<div class="no-print" style="display:flex; gap:10px; align-items:center;">
+  <span class="live-pill"><span class="live-dot"></span> Live</span>
+  <button class="btn btn-primary" type="button" onclick="window.print()">&#128424; Print</button>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="print-only print-header">
+  <strong>NEMSU Cantilan Campus — Online Grade Viewing System</strong><br>
+  Transaction History ({{ scope }}) · Printed by {{ 'Registrar' if current_role == 'admin' else current_username }}
+</div>
+{% if can_filter %}
+<div class="card no-print">
+  <form method="get" style="display:flex; gap:12px; align-items:flex-end;">
+    <div>
+      <label for="role">Show transactions by</label>
+      <select id="role" name="role" onchange="this.form.submit()">
+        <option value="">Everyone</option>
+        <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin / Registrar</option>
+        <option value="faculty" {% if role_filter == 'faculty' %}selected{% endif %}>Faculty</option>
+        <option value="student" {% if role_filter == 'student' %}selected{% endif %}>Students</option>
+      </select>
+    </div>
+  </form>
+</div>
+{% endif %}
+<div class="card">
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Date &amp; Time</th>{% if can_filter %}<th>By</th>{% endif %}<th>Action</th><th>Details</th></tr></thead>
+    <tbody id="txn-body" data-live-url="{{ feed_url }}" data-live-interval="4000">
+      {% set show_actor = can_filter %}
+      {% include "shared/_transaction_rows.html" %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

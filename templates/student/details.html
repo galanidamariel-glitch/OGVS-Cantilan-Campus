@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}My Details{% endblock %}
+{% block page_title %}My Personal Details{% endblock %}
+{% block page_subtitle %}{{ student.full_name }} · {{ student.student_id }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:560px;">
+  <form method="POST">
+    <div class="form-row">
+      <div>
+        <label for="contact_number">Contact Number</label>
+        <input type="text" id="contact_number" name="contact_number" value="{{ student.contact_number or '' }}" placeholder="e.g. 0917 123 4567">
+      </div>
+      <div>
+        <label for="birthdate">Birthdate</label>
+        <input type="date" id="birthdate" name="birthdate" value="{{ student.birthdate or '' }}">
+      </div>
+    </div>
+    <label for="address">Home Address</label>
+    <input type="text" id="address" name="address" value="{{ student.address or '' }}" placeholder="Barangay, Municipality, Province">
+    <div class="form-row">
+      <div>
+        <label for="guardian_name">Parent / Guardian</label>
+        <input type="text" id="guardian_name" name="guardian_name" value="{{ student.guardian_name or '' }}">
+      </div>
+      <div>
+        <label for="guardian_contact">Guardian Contact</label>
+        <input type="text" id="guardian_contact" name="guardian_contact" value="{{ student.guardian_contact or '' }}">
+      </div>
+    </div>
+    <button class="btn btn-primary" type="submit">Save Details</button>
+  </form>
+</div>
+{% endblock %}

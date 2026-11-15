@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Class List{% endblock %}
+{% block page_title %}{{ subject.code }} — Class List{% endblock %}
+{% block page_subtitle %}{{ subject.name }} · {{ section.program }} {{ section.year_level }}-{{ section.section_name }} · {{ offering.semester }}, {{ offering.school_year }}{% endblock %}
+{% block topbar_actions %}<a class="btn btn-outline" href="{{ url_for('faculty.encode', offering_id=offering.id) }}">Encode Grades</a>{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Nominate a Student for this Class</h3>
+  <p class="section-note">The Registrar reviews and approves every nomination before the student is admitted to your class.</p>
+  <form method="POST" action="{{ url_for('faculty.add_student', offering_id=offering.id) }}" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+    <div style="flex:1; min-width:180px;">
+      <label for="student_id">Student ID</label>
+      <input type="text" id="student_id" name="student_id" placeholder="e.g. 2023-00123" style="margin-bottom:0;" required>
+    </div>
+    <div style="flex:1; min-width:220px;">
+      <label for="full_name">Student full name</label>
+      <input type="text" id="full_name" name="full_name" placeholder="Required for a new student" style="margin-bottom:0;">
+    </div>
+    <button class="btn btn-primary" type="submit">Send Nomination</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>My Student Nominations</h3>
+  {% if nominations %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Student ID</th><th>Name</th><th>Submitted</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for n in nominations %}
+      <tr>
+        <td>{{ n.student_id }}</td>
+        <td>{{ n.full_name }}</td>
+        <td>{{ n.requested_at }}</td>
+        <td><span class="badge badge-{{ 'pending' if n.status == 'pending' else ('approved-status' if n.status == 'approved' else 'failed') }}">{{ n.status|capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No student nominations for this class yet.</div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>Students ({{ students|length }})</h3>
+  {% if students %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Student ID</th><th>Name</th><th>Program</th><th>Year-Section</th><th>Contact</th><th></th></tr></thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td>{{ s.student_id }}</td><td>{{ s.full_name }}</td><td>{{ s.program }}</td>
+        <td>{{ s.year_level }}-{{ s.section }}</td><td>{{ s.contact_number or '—' }}</td>
+        <td><a class="btn btn-outline btn-sm" href="{{ url_for('faculty.edit_student', offering_id=offering.id, student_id=s.student_id) }}">Edit</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No students on this class list yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

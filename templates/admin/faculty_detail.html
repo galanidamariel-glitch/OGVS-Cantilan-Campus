@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ faculty.full_name }}{% endblock %}
+{% block page_title %}{{ faculty.full_name }}{% endblock %}
+{% block page_subtitle %}{{ faculty.position }} · <span class="badge badge-{{ 'major' if faculty.faculty_type == 'Major' else 'minor' }}">{{ faculty.faculty_type }}</span>{% endblock %}
+{% block topbar_actions %}<a class="btn btn-outline" href="{{ url_for('admin.directory') }}#faculty">&larr; Faculty &amp; Students</a>{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Assigned Subjects</h3>
+  <p class="section-note">Select a subject to see its enrolled students.</p>
+  {% if offerings %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Code</th><th>Subject</th><th>Section</th><th>Schedule</th><th>Term</th><th>Enrolled</th><th></th></tr></thead>
+    <tbody>
+      {% for o in offerings %}
+      <tr>
+        <td><a class="text-link" href="{{ url_for('admin.offering_students', offering_id=o.id) }}">{{ o.code }}</a></td>
+        <td>{{ o.name }}</td>
+        <td>{{ o.program }} {{ o.year_level }}-{{ o.section_name }}</td>
+        <td>{{ o.meeting_time or '—' }} · {{ o.meeting_days or '—' }}</td>
+        <td>{{ o.semester }}, {{ o.school_year }}</td>
+        <td>{{ o.enrolled }}</td>
+        <td><a class="btn btn-outline btn-sm" href="{{ url_for('admin.offering_students', offering_id=o.id) }}">View Students</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No subjects assigned to this faculty member yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

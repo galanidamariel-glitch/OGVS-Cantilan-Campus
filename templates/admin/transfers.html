@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Block Transfers{% endblock %}
+{% block page_title %}Block / Section Transfers{% endblock %}
+{% block page_subtitle %}Track students moving to another block and notify the affected faculty{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Student Transfer Requests</h3>
+  {% if requests %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Date</th><th>Student</th><th>From</th><th>To</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for r in requests %}
+      <tr>
+        <td>{{ r.requested_at }}</td>
+        <td>{{ r.full_name }} <span style="color:var(--text-muted); font-size:11px;">({{ r.student_id }})</span></td>
+        <td>{{ r.from_program }} {{ r.from_year_level }}-{{ r.from_section_name }}</td>
+        <td>{{ r.from_program }} {{ r.from_year_level }}-{{ r.requested_section_name }}</td>
+        <td>{{ r.reason }}</td>
+        <td><span class="badge badge-{{ 'pending' if r.status == 'pending' else ('passed' if r.status == 'approved' else 'failed') }}">{{ r.status|capitalize }}</span></td>
+        <td>
+          {% if r.status == 'pending' %}
+          <div style="display:flex; gap:6px;">
+            {% if r.target_section_id %}
+            <form method="POST" action="{{ url_for('admin.approve_transfer_request', request_id=r.id) }}">
+              <button class="btn btn-primary btn-sm" type="submit">Approve</button>
+            </form>
+            {% else %}
+            <span style="color:var(--text-muted); font-size:11px;">Add destination section to Assignments to approve</span>
+            {% endif %}
+            <form method="POST" action="{{ url_for('admin.reject_transfer_request', request_id=r.id) }}">
+              <button class="btn btn-outline btn-sm" type="submit">Reject</button>
+            </form>
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No student transfer requests yet.</div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>Transfer a Student</h3>
+  <form method="POST">
+    <div class="form-row">
+      <div>
+        <label for="student_user_id">Student</label>
+        <select id="student_user_id" name="student_user_id" required>
+          {% for s in students %}
+          <option value="{{ s.user_id }}">{{ s.full_name }} ({{ s.student_id }}) — {{ s.program }} {{ s.year_level }}-{{ s.section }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="to_section_id">Transfer to</label>
+        <select id="to_section_id" name="to_section_id" required>
+          {% for sec in sections %}
+          <option value="{{ sec.id }}">{{ sec.program }} {{ sec.year_level }}-{{ sec.section_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <label for="reason">Reason (optional)</label>
+    <input type="text" id="reason" name="reason" placeholder="e.g. Schedule conflict, request of the student">
+    <button class="btn btn-primary" type="submit">Transfer &amp; Notify Faculty</button>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Transfer Status Tracker</h3>
+  {% if history %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Date</th><th>Student</th><th>From</th><th>To</th><th>Reason</th><th>Faculty Notified</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for t in history %}
+      <tr>
+        <td>{{ t.created_at }}</td>
+        <td>{{ t.full_name }} <span style="color:var(--text-muted); font-size:11px;">({{ t.student_id }})</span></td>
+        <td>{{ t.from_section }}</td><td>{{ t.to_section }}</td>
+        <td>{{ t.reason or '—' }}</td><td>{{ t.faculty_notified }}</td>
+        <td><span class="badge badge-{{ 'approved-status' if t.status == 'completed' else 'pending' }}">{{ t.status|capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No transfers recorded yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

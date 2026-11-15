@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ offering.code }} Students{% endblock %}
+{% block page_title %}{{ offering.code }} — {{ offering.name }}{% endblock %}
+{% block page_subtitle %}{{ offering.program }} {{ offering.year_level }}-{{ offering.section_name }} · {{ offering.semester }}, {{ offering.school_year }} · Instructor: {{ offering.instructor or 'Unassigned' }}{% endblock %}
+{% block topbar_actions %}
+{% if offering.faculty_user_id %}<a class="btn btn-outline" href="{{ url_for('admin.faculty_detail', user_id=offering.faculty_user_id) }}">&larr; Back to {{ offering.instructor }}</a>
+{% else %}<a class="btn btn-outline" href="{{ url_for('admin.directory') }}">&larr; Back</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Enrolled Students ({{ students|length }})</h3>
+  {% if students %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Student ID</th><th>Name</th><th>Department</th><th>Program</th><th>Year-Section</th><th>Grade Status</th></tr></thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td>{{ s.student_id }}</td><td>{{ s.full_name }}</td>
+        <td>{% if s.department %}{{ dept_names.get(s.department, s.department) }} ({{ s.department }}){% else %}—{% endif %}</td>
+        <td>{{ s.program }}</td><td>{{ s.year_level }}-{{ s.section }}</td>
+        <td><span class="badge badge-{{ s.grade_status or 'draft' }}">{{ (s.grade_status or 'not started')|capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No students are enrolled in this subject.</div>
+  {% endif %}
+</div>
+{% endblock %}

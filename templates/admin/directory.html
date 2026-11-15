@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Faculty & Students{% endblock %}
+{% block page_title %}Faculty &amp; Students{% endblock %}
+{% block page_subtitle %}One module for managing faculty (Minor / Major) and students{% endblock %}
+{% block topbar_actions %}
+<div style="display:flex; gap:10px;">
+  <a class="btn btn-primary" href="{{ url_for('admin.new_student') }}">+ Add Student Record</a>
+  <a class="btn btn-primary" href="{{ url_for('admin.new_faculty') }}">+ Add Faculty Account</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <form method="get" style="display:flex; gap:10px; margin-bottom:0;">
+    <input type="text" name="q" placeholder="Search faculty or students by name, ID, department, program, Minor/Major" value="{{ q }}" style="margin-bottom:0;">
+    <button class="btn btn-outline" type="submit">Search</button>
+  </form>
+</div>
+
+<div class="card" id="faculty">
+  <div class="section-heading"><div><h3>Faculty ({{ faculty|length }})</h3>
+    <p class="section-note">Select a faculty member to see the subjects assigned to them.</p></div></div>
+  {% if faculty %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Name</th><th>Employee ID</th><th>Classification</th><th>Subjects</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for r in faculty %}
+      <tr>
+        <td><a class="text-link" href="{{ url_for('admin.faculty_detail', user_id=r.user_id) }}">{{ r.full_name }}</a>
+            <div style="color:var(--text-muted); font-size:11px;">{{ r.username }} · {{ r.email or '—' }}</div></td>
+        <td>{{ r.employee_id or "—" }}</td>
+        <td>
+          <form method="POST" action="{{ url_for('admin.set_faculty_type', user_id=r.user_id) }}" class="inline-form">
+            <span class="badge badge-{{ 'major' if r.faculty_type == 'Major' else 'minor' }}">{{ r.faculty_type }}</span>
+            <select name="faculty_type" onchange="this.form.submit()" aria-label="Change classification" style="margin:0; width:auto; padding:4px 6px; font-size:12px;">
+              <option value="Minor" {% if r.faculty_type == 'Minor' %}selected{% endif %}>Minor</option>
+              <option value="Major" {% if r.faculty_type == 'Major' %}selected{% endif %}>Major</option>
+            </select>
+          </form>
+        </td>
+        <td>{{ r.subject_count }}</td>
+        <td><span class="badge badge-{{ 'approved-status' if r.verification_status == 'approved' else 'pending' }}">{{ r.verification_status|capitalize }}</span></td>
+        <td style="display:flex; gap:8px;">
+          <a class="btn btn-outline btn-sm" href="{{ url_for('admin.faculty_detail', user_id=r.user_id) }}">Subjects</a>
+          {% if r.verification_status == 'pending' %}
+          <form method="POST" action="{{ url_for('admin.approve_faculty', user_id=r.user_id) }}">
+            <button class="btn btn-gold btn-sm" type="submit">Verify &amp; Activate</button>
+          </form>
+          {% else %}
+          <form method="POST" action="{{ url_for('admin.toggle_faculty', user_id=r.user_id) }}">
+            <button class="btn btn-outline btn-sm" type="submit">{{ 'Deactivate' if r.is_active else 'Activate' }}</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No faculty found.</div>
+  {% endif %}
+</div>
+
+<div class="card" id="students">
+  <div class="section-heading"><div><h3>Students ({{ students|length }})</h3>
+    <p class="section-note">Grouped by department, year level and section.</p></div></div>
+  {% if students %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Student ID</th><th>Name</th><th>Department</th><th>Program</th><th>Year-Section</th><th></th></tr></thead>
+    <tbody>
+      {% for r in students %}
+      <tr>
+        <td>{{ r.student_id }}</td>
+        <td>{{ r.full_name }}</td>
+        <td title="{{ dept_names.get(r.department, '') }}">
+          {% if r.department %}{{ dept_names.get(r.department, r.department) }} ({{ r.department }}){% else %}—{% endif %}
+        </td>
+        <td>{{ r.program }}</td>
+        <td>{{ r.year_level }}-{{ r.section }}</td>
+        <td style="display:flex; gap:8px;">
+          <a class="btn btn-outline btn-sm" href="{{ url_for('admin.edit_student', student_id=r.student_id) }}">Edit</a>
+          <form method="POST" action="{{ url_for('admin.toggle_student', student_id=r.student_id) }}">
+            <button class="btn btn-danger btn-sm" type="submit">{{ 'Deactivate' if r.is_active else 'Reactivate' }}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No student records found.</div>
+  {% endif %}
+</div>
+{% endblock %}

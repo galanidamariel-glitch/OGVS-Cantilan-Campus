@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Block Transfer{% endblock %}
+{% block page_title %}Block / Section Transfer{% endblock %}
+{% block page_subtitle %}Request a move to another block in your program and year level{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:680px;">
+  <h3>Request a Transfer</h3>
+  <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px;">
+    Your current block: <strong>{{ student.program }} {{ student.year_level }}-{{ student.section }}</strong>.
+    Requests are reviewed by the Registrar; your block will not change until approved.
+  </p>
+  {% if pending_request %}
+  <div class="alert alert-info">You already have a pending request. Wait for the Registrar's decision before submitting another.</div>
+  {% else %}
+  <form method="POST">
+    <label for="requested_section">Requested block / section</label>
+    <input type="text" id="requested_section" name="requested_section" maxlength="30" list="available-sections" required placeholder="e.g. B">
+    <datalist id="available-sections">
+      {% for section in sections %}
+      <option value="{{ section.section_name }}">
+      {% endfor %}
+    </datalist>
+    <label for="reason">Reason for request</label>
+    <textarea id="reason" name="reason" rows="3" maxlength="500" required placeholder="Explain why you are requesting this transfer"></textarea>
+    <button class="btn btn-primary" type="submit">Submit Transfer Request</button>
+  </form>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h3>My Transfer Requests</h3>
+  {% if transfer_requests %}
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Requested</th><th>From</th><th>To</th><th>Reason</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for r in transfer_requests %}
+      <tr>
+        <td>{{ r.requested_at }}</td>
+        <td>{{ r.from_program }} {{ r.from_year_level }}-{{ r.from_section_name }}</td>
+        <td>{{ r.from_program }} {{ r.from_year_level }}-{{ r.requested_section_name }}</td>
+        <td>{{ r.reason }}</td>
+        <td><span class="badge badge-{{ 'pending' if r.status == 'pending' else ('passed' if r.status == 'approved' else 'failed') }}">{{ r.status|capitalize }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">You have not submitted any transfer requests.</div>
+  {% endif %}
+</div>
+{% endblock %}

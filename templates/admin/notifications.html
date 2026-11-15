@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block page_subtitle %}Faculty requests appear here in real time{% endblock %}
+{% block topbar_actions %}<span class="live-pill"><span class="live-dot"></span> Live</span>{% endblock %}
+
+{% block content %}
+{% if pending_faculty %}
+<div class="alert alert-warning">{{ pending_faculty }} faculty application(s) waiting for verification.
+  <a class="text-link" href="{{ url_for('admin.directory') }}#faculty">Review now</a></div>
+{% endif %}
+<div class="card">
+  <div id="notice-list" data-live-url="{{ url_for('admin.notifications_feed') }}" data-live-interval="4000">
+    {% include "admin/_notification_rows.html" %}
+  </div>
+</div>
+{% endblock %}

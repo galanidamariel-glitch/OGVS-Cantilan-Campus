@@ -1,0 +1,8 @@
+{% for n in rows %}
+<div class="notice-row {{ 'is-new' if n.id in new_ids }}">
+  <div>{{ n.message }}</div>
+  <div class="notice-time">{{ n.created_at }}</div>
+</div>
+{% else %}
+<div class="empty-state">No notifications yet.</div>
+{% endfor %}

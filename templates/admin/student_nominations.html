@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Student Nominations{% endblock %}
+{% block page_title %}Student Nominations{% endblock %}
+{% block page_subtitle %}Review faculty nominations before students are admitted to their classes{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Faculty Nominations</h3>
+  <p class="section-note">Approving a registered student adds them to the class roster. If they have not registered yet, approval creates their campus enrollment record and adds them to the class after they register.</p>
+  {% if nominations %}
+  <div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Student</th><th>Nominated by</th><th>Class</th><th>Term</th><th>Requested</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for n in nominations %}
+      <tr>
+        <td>{{ n.full_name }}<br><span style="color:var(--text-muted); font-size:12px;">{{ n.student_id }}</span></td>
+        <td>{{ n.faculty_name }}</td>
+        <td>{{ n.subject_code }} — {{ n.subject_name }}<br><span style="color:var(--text-muted); font-size:12px;">{{ n.program }} {{ n.year_level }}-{{ n.section_name }}</span></td>
+        <td>{{ n.semester }}, {{ n.school_year }}</td>
+        <td>{{ n.requested_at }}</td>
+        <td><span class="badge badge-{{ 'pending' if n.status == 'pending' else ('approved-status' if n.status == 'approved' else 'failed') }}">{{ n.status|capitalize }}</span></td>
+        <td>
+          {% if n.status == 'pending' %}
+          <div style="display:flex; gap:8px;">
+            <form method="POST" action="{{ url_for('admin.approve_student_nomination', nomination_id=n.id) }}">
+              <button class="btn btn-primary btn-sm" type="submit">Approve</button>
+            </form>
+            <form method="POST" action="{{ url_for('admin.reject_student_nomination', nomination_id=n.id) }}">
+              <button class="btn btn-outline btn-sm" type="submit">Reject</button>
+            </form>
+          </div>
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="empty-state">No student nominations have been submitted.</div>
+  {% endif %}
+</div>
+{% endblock %}

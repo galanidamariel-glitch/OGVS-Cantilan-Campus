@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ r.code }}{% endblock %}
+{% block page_title %}{{ r.code }} — {{ r.name }}{% endblock %}
+{% block page_subtitle %}{{ r.semester }}, {{ r.school_year }} · Instructor: {{ r.instructor or 'To be assigned' }}{% endblock %}
+{% block topbar_actions %}<a class="btn btn-outline" href="{{ url_for('student.subjects') }}">&larr; Subjects</a>{% endblock %}
+
+{% block content %}
+<div class="card">
+  <p>Schedule: {{ r.meeting_time or '—' }} · {{ r.meeting_days or '—' }} &nbsp;|&nbsp; Units: {{ r.units }}</p>
+  {% if r.status == 'released' %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Prelim</th><th>Midterm</th><th>Finals</th><th>Final Grade</th><th>Remarks</th></tr></thead>
+    <tbody><tr><td>{{ r.prelim }}</td><td>{{ r.midterm }}</td><td>{{ r.finals }}</td><td><strong>{{ r.final_grade }}</strong></td>
+      <td><span class="badge badge-{{ 'passed' if r.remarks == 'Passed' else 'failed' }}">{{ r.remarks }}</span></td></tr></tbody>
+  </table></div>
+  {% else %}
+  <div class="empty-state">Your grade for this class has not been released yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% for t in rows %}
+<tr>
+  <td class="nowrap">{{ t.created_at }}</td>
+  {% if show_actor %}<td>{{ t.actor_name }} <span class="role-chip">{{ t.actor_role }}</span></td>{% endif %}
+  <td>{{ t.action }}</td>
+  <td>{{ t.details or '—' }}</td>
+</tr>
+{% else %}
+<tr><td colspan="{{ 4 if show_actor else 3 }}"><div class="empty-state">No transactions recorded yet.</div></td></tr>
+{% endfor %}
