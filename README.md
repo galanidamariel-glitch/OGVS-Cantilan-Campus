@@ -193,3 +193,4 @@ seal in `static/img/logo.jpg`.
 
 Sample accounts added: `mreyes` / `faculty123` (Minor); `jdelacruz` is Major.
 All sample students use password `student123` and log in with their Student ID.
+"# OGVS-Cantilan-Campus" 
